@@ -19,13 +19,49 @@ export default function AIInsightsScreen() {
   const loadInsights = useCallback(async (showLoading = true) => {
     try {
       if (showLoading) setLoading(true);
+      console.log('Loading AI insights...');
+      
       // Simulate API call delay
       await new Promise(resolve => setTimeout(resolve, 1000));
       const data = getMockAIInsights();
-      setInsights(data);
-      console.log('AI Insights loaded');
+      
+      // Validate data structure before setting
+      if (data && typeof data === 'object') {
+        console.log('AI Insights loaded successfully:', {
+          bestBet: !!data.bestBet,
+          topOpportunities: data.topOpportunities?.length || 0,
+          teamStreaks: data.teamStreaks?.length || 0,
+          playerStreaks: data.playerStreaks?.length || 0,
+          injuryUpdates: data.injuryUpdates?.length || 0
+        });
+        setInsights(data);
+      } else {
+        console.log('Invalid insights data received');
+        throw new Error('Invalid data structure');
+      }
     } catch (error) {
       console.log('Error loading AI insights:', error);
+      // Set empty data structure to prevent crashes
+      setInsights({
+        lastUpdated: new Date().toISOString(),
+        bestBet: {
+          recommendation: 'No recommendations available',
+          confidence: 0,
+          reasoning: 'Unable to load data at this time',
+          league: 'NBA',
+          type: 'Spread',
+          detailedAnalysis: {
+            keyFactors: [],
+            riskFactors: [],
+            supportingData: []
+          }
+        },
+        topOpportunities: [],
+        teamStreaks: [],
+        playerStreaks: [],
+        marketTrends: [],
+        injuryUpdates: []
+      });
     } finally {
       if (showLoading) setLoading(false);
       setRefreshing(false);
@@ -47,6 +83,26 @@ export default function AIInsightsScreen() {
         <View style={commonStyles.loadingContainer}>
           <ActivityIndicator size="large" color={colors.accent} />
           <Text style={commonStyles.loadingText}>Analyzing sports data...</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  // Additional safety check
+  if (!insights) {
+    return (
+      <SafeAreaView style={commonStyles.safeArea}>
+        <View style={commonStyles.loadingContainer}>
+          <Icon name="alert-circle-outline" size={48} color={colors.error} />
+          <Text style={[commonStyles.text, { textAlign: 'center', marginTop: 16 }]}>
+            Unable to load insights
+          </Text>
+          <TouchableOpacity
+            style={[commonStyles.button, { marginTop: 16 }]}
+            onPress={() => loadInsights()}
+          >
+            <Text style={commonStyles.buttonText}>Try Again</Text>
+          </TouchableOpacity>
         </View>
       </SafeAreaView>
     );
@@ -76,7 +132,7 @@ export default function AIInsightsScreen() {
           }
         >
           {/* Best Bet of the Day */}
-          {insights?.bestBet && (
+          {insights.bestBet && (
             <Animated.View 
               style={commonStyles.section}
               entering={FadeInDown.duration(400).delay(100)}
@@ -100,34 +156,38 @@ export default function AIInsightsScreen() {
                 </Text>
 
                 {/* Key Factors */}
-                <View style={{ marginBottom: 12 }}>
-                  <Text style={[commonStyles.textSmall, { fontWeight: '600', marginBottom: 8, color: colors.success }]}>
-                    Key Factors:
-                  </Text>
-                  {insights.bestBet.detailedAnalysis.keyFactors.map((factor, index) => (
-                    <View key={index} style={[commonStyles.row, { marginBottom: 4 }]}>
-                      <Icon name="checkmark-outline" size={12} color={colors.success} />
-                      <Text style={[commonStyles.textSmall, { marginLeft: 6, flex: 1 }]}>
-                        {factor}
-                      </Text>
-                    </View>
-                  ))}
-                </View>
+                {insights.bestBet.detailedAnalysis?.keyFactors && insights.bestBet.detailedAnalysis.keyFactors.length > 0 && (
+                  <View style={{ marginBottom: 12 }}>
+                    <Text style={[commonStyles.textSmall, { fontWeight: '600', marginBottom: 8, color: colors.success }]}>
+                      Key Factors:
+                    </Text>
+                    {insights.bestBet.detailedAnalysis.keyFactors.map((factor, index) => (
+                      <View key={index} style={[commonStyles.row, { marginBottom: 4 }]}>
+                        <Icon name="checkmark-outline" size={12} color={colors.success} />
+                        <Text style={[commonStyles.textSmall, { marginLeft: 6, flex: 1 }]}>
+                          {factor}
+                        </Text>
+                      </View>
+                    ))}
+                  </View>
+                )}
 
                 {/* Risk Factors */}
-                <View style={{ marginBottom: 16 }}>
-                  <Text style={[commonStyles.textSmall, { fontWeight: '600', marginBottom: 8, color: colors.warning }]}>
-                    Risk Factors:
-                  </Text>
-                  {insights.bestBet.detailedAnalysis.riskFactors.map((risk, index) => (
-                    <View key={index} style={[commonStyles.row, { marginBottom: 4 }]}>
-                      <Icon name="warning-outline" size={12} color={colors.warning} />
-                      <Text style={[commonStyles.textSmall, { marginLeft: 6, flex: 1 }]}>
-                        {risk}
-                      </Text>
-                    </View>
-                  ))}
-                </View>
+                {insights.bestBet.detailedAnalysis?.riskFactors && insights.bestBet.detailedAnalysis.riskFactors.length > 0 && (
+                  <View style={{ marginBottom: 16 }}>
+                    <Text style={[commonStyles.textSmall, { fontWeight: '600', marginBottom: 8, color: colors.warning }]}>
+                      Risk Factors:
+                    </Text>
+                    {insights.bestBet.detailedAnalysis.riskFactors.map((risk, index) => (
+                      <View key={index} style={[commonStyles.row, { marginBottom: 4 }]}>
+                        <Icon name="warning-outline" size={12} color={colors.warning} />
+                        <Text style={[commonStyles.textSmall, { marginLeft: 6, flex: 1 }]}>
+                          {risk}
+                        </Text>
+                      </View>
+                    ))}
+                  </View>
+                )}
                 
                 <TouchableOpacity
                   style={[commonStyles.row, { alignItems: 'center' }]}
@@ -143,7 +203,7 @@ export default function AIInsightsScreen() {
           )}
 
           {/* Injury Updates */}
-          {insights?.injuryUpdates && insights.injuryUpdates.length > 0 && (
+          {insights.injuryUpdates && insights.injuryUpdates.length > 0 && (
             <Animated.View 
               style={commonStyles.section}
               entering={FadeInDown.duration(400).delay(200)}
@@ -155,7 +215,7 @@ export default function AIInsightsScreen() {
               
               {insights.injuryUpdates.slice(0, 3).map((injury, index) => (
                 <Animated.View
-                  key={index}
+                  key={`${injury.player}-${injury.team}-${index}`}
                   style={[
                     commonStyles.card,
                     { 
@@ -268,7 +328,7 @@ export default function AIInsightsScreen() {
           )}
 
           {/* Market Trends */}
-          {insights?.marketTrends && insights.marketTrends.length > 0 && (
+          {insights.marketTrends && insights.marketTrends.length > 0 && (
             <Animated.View 
               style={commonStyles.section}
               entering={FadeInDown.duration(400).delay(500)}
@@ -280,7 +340,7 @@ export default function AIInsightsScreen() {
               
               {insights.marketTrends.map((trend, index) => (
                 <Animated.View
-                  key={index}
+                  key={`${trend.league}-${index}`}
                   style={[
                     commonStyles.card,
                     { 
@@ -319,7 +379,7 @@ export default function AIInsightsScreen() {
             entering={FadeInDown.duration(400).delay(700)}
           >
             <Text style={[commonStyles.textSmall, { color: colors.muted }]}>
-              Last updated: {new Date(insights?.lastUpdated || '').toLocaleTimeString()}
+              Last updated: {new Date(insights.lastUpdated || '').toLocaleTimeString()}
             </Text>
             <TouchableOpacity
               style={[

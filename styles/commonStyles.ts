@@ -159,6 +159,22 @@ export const commonStyles = StyleSheet.create({
     lineHeight: 24,
   },
   
+  // Button styles
+  button: {
+    backgroundColor: colors.accent,
+    paddingHorizontal: 20,
+    paddingVertical: 14,
+    borderRadius: 12,
+    alignItems: 'center',
+    boxShadow: '0px 4px 12px rgba(0, 212, 170, 0.25)',
+    elevation: 4,
+  },
+  buttonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: colors.background,
+  },
+  
   // Sports 360 X specific styles
   confidenceCard: {
     backgroundColor: `${colors.confidence}15`,
