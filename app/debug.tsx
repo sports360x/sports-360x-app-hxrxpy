@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Platform } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { commonStyles, colors } from "../styles/commonStyles";
@@ -15,11 +15,11 @@ export default function DebugScreen() {
   ]);
   const [pings, setPings] = useState<Record<string, Ping>>({});
 
-  const targets = [
+  const targets = useMemo(() => [
     "/api/scores?date=2025-09-17&league=ALL",
     "/api/scores?date=2025-09-17&league=MLB",
     "/api/health",
-  ];
+  ], []);
 
   useEffect(() => {
     console.log("DebugScreen: Loading environment variables and pinging APIs");
