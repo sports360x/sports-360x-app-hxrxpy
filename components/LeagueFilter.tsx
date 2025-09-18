@@ -1,98 +1,70 @@
 
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import React from 'react';
+import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
+import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { commonStyles, colors } from '../styles/commonStyles';
-import Icon from './Icon';
 import { League } from '../types/sports';
-import SimpleBottomSheet from './BottomSheet';
 
 interface LeagueFilterProps {
   selectedLeague: League;
   onLeagueChange: (league: League) => void;
 }
 
+const leagues: { key: League; label: string; emoji: string }[] = [
+  { key: 'ALL', label: 'All', emoji: '🏆' },
+  { key: 'NBA', label: 'NBA', emoji: '🏀' },
+  { key: 'NFL', label: 'NFL', emoji: '🏈' },
+  { key: 'MLB', label: 'MLB', emoji: '⚾' },
+  { key: 'SOCCER', label: 'Soccer', emoji: '⚽' },
+  { key: 'TENNIS', label: 'Tennis', emoji: '🎾' },
+];
+
 export default function LeagueFilter({ selectedLeague, onLeagueChange }: LeagueFilterProps) {
-  const [isVisible, setIsVisible] = useState(false);
-
-  const leagues: { key: League; label: string }[] = [
-    { key: 'ALL', label: 'All Leagues' },
-    { key: 'MLB', label: 'MLB' },
-    { key: 'NBA', label: 'NBA' },
-    { key: 'NFL', label: 'NFL' },
-  ];
-
-  const handleLeagueSelect = (league: League) => {
-    onLeagueChange(league);
-    setIsVisible(false);
-  };
-
-  const selectedLeagueLabel = leagues.find(l => l.key === selectedLeague)?.label || 'All Leagues';
-
   return (
-    <>
-      <TouchableOpacity
-        style={[
-          commonStyles.row,
-          {
-            backgroundColor: colors.card,
-            paddingHorizontal: 16,
-            paddingVertical: 12,
-            borderRadius: 8,
-            flex: 1,
-          }
-        ]}
-        onPress={() => setIsVisible(true)}
-      >
-        <Text style={[commonStyles.text, { flex: 1 }]}>
-          {selectedLeagueLabel}
-        </Text>
-        <Icon name="chevron-down-outline" size={16} color={colors.muted} />
-      </TouchableOpacity>
-
-      <SimpleBottomSheet
-        isVisible={isVisible}
-        onClose={() => setIsVisible(false)}
-      >
-        <View style={{ padding: 20 }}>
-          <Text style={[commonStyles.subtitle, { marginBottom: 20, textAlign: 'center' }]}>
-            Select League
-          </Text>
-          
-          {leagues.map((league) => (
-            <TouchableOpacity
-              key={league.key}
+    <ScrollView 
+      horizontal 
+      showsHorizontalScrollIndicator={false}
+      style={{ flexGrow: 0 }}
+      contentContainerStyle={{ paddingRight: 16 }}
+    >
+      {leagues.map((league, index) => (
+        <Animated.View
+          key={league.key}
+          entering={FadeIn.duration(300).delay(index * 50)}
+          exiting={FadeOut.duration(200)}
+        >
+          <TouchableOpacity
+            style={[
+              {
+                paddingHorizontal: 16,
+                paddingVertical: 10,
+                borderRadius: 20,
+                marginRight: 8,
+                backgroundColor: selectedLeague === league.key ? colors.accent : colors.card,
+                borderWidth: 1,
+                borderColor: selectedLeague === league.key ? colors.accent : colors.border,
+              },
+              commonStyles.row,
+            ]}
+            onPress={() => onLeagueChange(league.key)}
+          >
+            <Text style={{ fontSize: 16, marginRight: 6 }}>
+              {league.emoji}
+            </Text>
+            <Text
               style={[
+                commonStyles.textSmall,
                 {
-                  paddingVertical: 16,
-                  paddingHorizontal: 20,
-                  borderRadius: 12,
-                  marginBottom: 8,
-                  backgroundColor: selectedLeague === league.key ? colors.accent : colors.background,
-                },
-                commonStyles.row
-              ]}
-              onPress={() => handleLeagueSelect(league.key)}
-            >
-              <Text style={[
-                commonStyles.text,
-                { 
-                  flex: 1,
-                  color: selectedLeague === league.key ? colors.background : colors.text 
+                  color: selectedLeague === league.key ? colors.background : colors.text,
+                  fontWeight: selectedLeague === league.key ? '700' : '600',
                 }
-              ]}>
-                {league.label}
-              </Text>
-              {selectedLeague === league.key && (
-                <Icon 
-                  name="checkmark-outline" 
-                  size={20} 
-                  color={colors.background} 
-                />
-              )}
-            </TouchableOpacity>
-          ))}
-        </View>
-      </SimpleBottomSheet>
-    </>
+              ]}
+            >
+              {league.label}
+            </Text>
+          </TouchableOpacity>
+        </Animated.View>
+      ))}
+    </ScrollView>
   );
 }

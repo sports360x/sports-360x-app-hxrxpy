@@ -21,20 +21,33 @@
     "production": {
       "ios": {
         "resourceClass": "m1-medium",
-        "bundleIdentifier": "com.sports360x.app"
+        "buildConfiguration": "Release",
+        "distribution": "store",
+        "env": {
+          "NODE_ENV": "production",
+          "EXPO_PUBLIC_ENVIRONMENT": "production"
+        }
       },
       "android": {
-        "buildType": "apk",
-        "gradleCommand": ":app:assembleRelease"
+        "buildType": "app-bundle",
+        "gradleCommand": ":app:bundleRelease",
+        "env": {
+          "NODE_ENV": "production",
+          "EXPO_PUBLIC_ENVIRONMENT": "production"
+        }
       }
     }
   },
   "submit": {
     "production": {
       "ios": {
-        "appleId": "your-apple-id@example.com",
-        "ascAppId": "your-app-store-connect-app-id",
-        "appleTeamId": "your-apple-team-id"
+        "appleId": "support@sports360x.com",
+        "ascAppId": "sports-360-x",
+        "appleTeamId": "SPORTS360X"
+      },
+      "android": {
+        "serviceAccountKeyPath": "./google-service-account.json",
+        "track": "production"
       }
     }
   }

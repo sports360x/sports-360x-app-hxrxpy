@@ -3,6 +3,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Animated, { FadeInDown, FadeInUp, SlideInRight } from 'react-native-reanimated';
 import { commonStyles, colors } from '../styles/commonStyles';
 import Icon from '../components/Icon';
 import GameCard from '../components/GameCard';
@@ -64,10 +65,10 @@ export default function ScoresScreen() {
     }
   }, [selectedLeague, selectedDate]);
 
-  const onRefresh = () => {
+  const onRefresh = useCallback(() => {
     setRefreshing(true);
     loadGames(false);
-  };
+  }, [loadGames]);
 
   useEffect(() => {
     loadGames();
@@ -99,7 +100,10 @@ export default function ScoresScreen() {
   return (
     <SafeAreaView style={commonStyles.safeArea}>
       <View style={commonStyles.container}>
-        <View style={{ padding: 16 }}>
+        <Animated.View 
+          style={{ padding: 16 }}
+          entering={FadeInUp.duration(600)}
+        >
           <Text style={commonStyles.title}>Sports 360 X</Text>
           <Text style={commonStyles.textMuted}>Live scores and real-time updates</Text>
           
@@ -124,7 +128,7 @@ export default function ScoresScreen() {
             selectedDate={selectedDate}
             onDateChange={setSelectedDate}
           />
-        </View>
+        </Animated.View>
 
         <ScrollView
           style={commonStyles.content}
@@ -133,47 +137,103 @@ export default function ScoresScreen() {
               refreshing={refreshing}
               onRefresh={onRefresh}
               tintColor={colors.accent}
+              title="Pull to refresh scores"
+              titleColor={colors.text}
             />
           }
         >
           {liveGames.length > 0 && (
-            <View style={commonStyles.section}>
+            <Animated.View 
+              style={commonStyles.section}
+              entering={FadeInDown.duration(400).delay(100)}
+            >
               <View style={[commonStyles.row, { marginBottom: 12 }]}>
-                <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: colors.live, marginRight: 8 }} />
+                <Animated.View 
+                  style={{ 
+                    width: 8, 
+                    height: 8, 
+                    borderRadius: 4, 
+                    backgroundColor: colors.live, 
+                    marginRight: 8 
+                  }}
+                  entering={SlideInRight.duration(300)}
+                />
                 <Text style={commonStyles.subtitle}>Live Games ({liveGames.length})</Text>
               </View>
-              {liveGames.map(game => (
-                <GameCard key={game.id} game={game} />
+              {liveGames.map((game, index) => (
+                <Animated.View
+                  key={game.id}
+                  entering={FadeInDown.duration(400).delay(index * 100)}
+                >
+                  <GameCard game={game} />
+                </Animated.View>
               ))}
-            </View>
+            </Animated.View>
           )}
 
           {upcomingGames.length > 0 && (
-            <View style={commonStyles.section}>
+            <Animated.View 
+              style={commonStyles.section}
+              entering={FadeInDown.duration(400).delay(200)}
+            >
               <View style={[commonStyles.row, { marginBottom: 12 }]}>
-                <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: colors.upcoming, marginRight: 8 }} />
+                <Animated.View 
+                  style={{ 
+                    width: 8, 
+                    height: 8, 
+                    borderRadius: 4, 
+                    backgroundColor: colors.upcoming, 
+                    marginRight: 8 
+                  }}
+                  entering={SlideInRight.duration(300).delay(100)}
+                />
                 <Text style={commonStyles.subtitle}>Upcoming Games ({upcomingGames.length})</Text>
               </View>
-              {upcomingGames.map(game => (
-                <GameCard key={game.id} game={game} />
+              {upcomingGames.map((game, index) => (
+                <Animated.View
+                  key={game.id}
+                  entering={FadeInDown.duration(400).delay(index * 100)}
+                >
+                  <GameCard game={game} />
+                </Animated.View>
               ))}
-            </View>
+            </Animated.View>
           )}
 
           {finishedGames.length > 0 && (
-            <View style={commonStyles.section}>
+            <Animated.View 
+              style={commonStyles.section}
+              entering={FadeInDown.duration(400).delay(300)}
+            >
               <View style={[commonStyles.row, { marginBottom: 12 }]}>
-                <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: colors.finished, marginRight: 8 }} />
+                <Animated.View 
+                  style={{ 
+                    width: 8, 
+                    height: 8, 
+                    borderRadius: 4, 
+                    backgroundColor: colors.finished, 
+                    marginRight: 8 
+                  }}
+                  entering={SlideInRight.duration(300).delay(200)}
+                />
                 <Text style={commonStyles.subtitle}>Finished Games ({finishedGames.length})</Text>
               </View>
-              {finishedGames.map(game => (
-                <GameCard key={game.id} game={game} />
+              {finishedGames.map((game, index) => (
+                <Animated.View
+                  key={game.id}
+                  entering={FadeInDown.duration(400).delay(index * 100)}
+                >
+                  <GameCard game={game} />
+                </Animated.View>
               ))}
-            </View>
+            </Animated.View>
           )}
 
           {games.length === 0 && (
-            <View style={[commonStyles.center, { marginTop: 40 }]}>
+            <Animated.View 
+              style={[commonStyles.center, { marginTop: 40 }]}
+              entering={FadeInDown.duration(600)}
+            >
               <Icon name="calendar-outline" size={48} color={colors.muted} />
               <Text style={[commonStyles.text, { marginTop: 16, textAlign: 'center' }]}>
                 No games scheduled for this date
@@ -181,7 +241,7 @@ export default function ScoresScreen() {
               <Text style={[commonStyles.textMuted, { marginTop: 8, textAlign: 'center' }]}>
                 Try selecting a different date or league
               </Text>
-            </View>
+            </Animated.View>
           )}
         </ScrollView>
 
