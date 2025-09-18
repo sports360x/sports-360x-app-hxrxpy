@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { commonStyles, colors } from '../styles/commonStyles';
@@ -14,7 +14,7 @@ export default function AnalyticsScreen() {
   const [loading, setLoading] = useState(true);
   const [selectedLeague, setSelectedLeague] = useState<'ALL' | 'MLB' | 'NBA' | 'NFL'>('ALL');
 
-  const loadAnalytics = async () => {
+  const loadAnalytics = useCallback(async () => {
     try {
       setLoading(true);
       const data = await fetchAnalytics(selectedLeague);
@@ -25,11 +25,11 @@ export default function AnalyticsScreen() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedLeague]);
 
   useEffect(() => {
     loadAnalytics();
-  }, [selectedLeague]);
+  }, [loadAnalytics]);
 
   if (loading) {
     return (

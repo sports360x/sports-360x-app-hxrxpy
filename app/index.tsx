@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { commonStyles, colors } from '../styles/commonStyles';
@@ -18,7 +18,7 @@ export default function ScoresScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [autoRefresh, setAutoRefresh] = useState(15); // seconds
 
-  const loadGames = async (showLoading = true) => {
+  const loadGames = useCallback(async (showLoading = true) => {
     try {
       if (showLoading) setLoading(true);
       const data = await fetchGames(selectedLeague, selectedDate);
@@ -30,7 +30,7 @@ export default function ScoresScreen() {
       if (showLoading) setLoading(false);
       setRefreshing(false);
     }
-  };
+  }, [selectedLeague, selectedDate]);
 
   const onRefresh = () => {
     setRefreshing(true);
@@ -39,7 +39,7 @@ export default function ScoresScreen() {
 
   useEffect(() => {
     loadGames();
-  }, [selectedLeague, selectedDate]);
+  }, [loadGames]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -47,7 +47,7 @@ export default function ScoresScreen() {
     }, autoRefresh * 1000);
 
     return () => clearInterval(interval);
-  }, [autoRefresh, selectedLeague, selectedDate]);
+  }, [autoRefresh, loadGames]);
 
   const liveGames = games.filter(game => game.state === 'LIVE');
   const upcomingGames = games.filter(game => game.state === 'UPCOMING');

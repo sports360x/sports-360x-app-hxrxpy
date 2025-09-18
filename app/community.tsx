@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, TextInput, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { commonStyles, colors } from '../styles/commonStyles';
@@ -14,7 +14,7 @@ export default function CommunityScreen() {
   const [newPost, setNewPost] = useState('');
   const [activeTab, setActiveTab] = useState<'hot' | 'recent' | 'following'>('hot');
 
-  const loadPosts = async () => {
+  const loadPosts = useCallback(async () => {
     try {
       setLoading(true);
       const data = await fetchCommunityPosts(activeTab);
@@ -25,7 +25,7 @@ export default function CommunityScreen() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [activeTab]);
 
   const handleCreatePost = async () => {
     if (!newPost.trim()) return;
@@ -42,7 +42,7 @@ export default function CommunityScreen() {
 
   useEffect(() => {
     loadPosts();
-  }, [activeTab]);
+  }, [loadPosts]);
 
   if (loading) {
     return (

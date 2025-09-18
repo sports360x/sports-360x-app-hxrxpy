@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { commonStyles, colors } from '../styles/commonStyles';
@@ -15,7 +15,7 @@ export default function FavoritesScreen() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'teams' | 'games'>('teams');
 
-  const loadFavorites = async () => {
+  const loadFavorites = useCallback(async () => {
     try {
       setLoading(true);
       const [teams, games] = await Promise.all([
@@ -30,11 +30,11 @@ export default function FavoritesScreen() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     loadFavorites();
-  }, []);
+  }, [loadFavorites]);
 
   if (loading) {
     return (
@@ -98,7 +98,7 @@ export default function FavoritesScreen() {
               </Text>
             </TouchableOpacity>
           </View>
-        </div>
+        </View>
 
         <ScrollView style={commonStyles.content}>
           {activeTab === 'teams' && (

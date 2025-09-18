@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { commonStyles, colors } from '../styles/commonStyles';
@@ -14,7 +14,7 @@ export default function NewsScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [selectedLeague, setSelectedLeague] = useState<League>('ALL');
 
-  const loadNews = async (showLoading = true) => {
+  const loadNews = useCallback(async (showLoading = true) => {
     try {
       if (showLoading) setLoading(true);
       const data = await fetchNews(selectedLeague);
@@ -26,7 +26,7 @@ export default function NewsScreen() {
       if (showLoading) setLoading(false);
       setRefreshing(false);
     }
-  };
+  }, [selectedLeague]);
 
   const onRefresh = () => {
     setRefreshing(true);
@@ -35,7 +35,7 @@ export default function NewsScreen() {
 
   useEffect(() => {
     loadNews();
-  }, [selectedLeague]);
+  }, [loadNews]);
 
   const breakingNews = news.filter(article => article.isBreaking);
   const regularNews = news.filter(article => !article.isBreaking);
