@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { commonStyles, colors } from '../styles/commonStyles';
 import Icon from '../components/Icon';
@@ -10,10 +10,64 @@ import { AnalyticsData } from '../types/analytics';
 import { fetchAnalytics } from '../utils/api';
 import { router } from 'expo-router';
 
+// SSR-friendly skeleton component for initial render
+function AnalyticsSkeleton() {
+  return (
+    <SafeAreaView style={commonStyles.safeArea}>
+      <View style={commonStyles.container}>
+        <View style={{ padding: 16 }}>
+          <Text style={commonStyles.title}>Sports 360 X — Analytics</Text>
+          <Text style={commonStyles.textMuted}>AI-powered insights and statistics</Text>
+        </View>
+
+        <ScrollView style={commonStyles.content}>
+          {/* AI Daily Insights Skeleton */}
+          <View style={commonStyles.section}>
+            <View style={[commonStyles.row, { marginBottom: 16 }]}>
+              <Icon name="bulb-outline" size={20} color={colors.accent} />
+              <Text style={[commonStyles.subtitle, { marginLeft: 8 }]}>AI Daily Insight</Text>
+            </View>
+            <View style={commonStyles.card}>
+              <Text style={commonStyles.text}>Loading today's top opportunities…</Text>
+            </View>
+          </View>
+
+          {/* Live Analytics Skeleton */}
+          <View style={commonStyles.section}>
+            <Text style={commonStyles.subtitle}>Live Analytics</Text>
+            <View style={commonStyles.card}>
+              <Text style={[commonStyles.text, { marginBottom: 8 }]}>• Win Rate — loading…</Text>
+              <Text style={[commonStyles.text, { marginBottom: 8 }]}>• ROI — loading…</Text>
+              <Text style={[commonStyles.text, { marginBottom: 8 }]}>• Hot Streak — loading…</Text>
+              <Text style={commonStyles.text}>• Community — loading…</Text>
+            </View>
+          </View>
+
+          {/* Performance Stats Skeleton */}
+          <View style={commonStyles.section}>
+            <Text style={commonStyles.subtitle}>Performance Overview</Text>
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginTop: 12 }}>
+              <View style={[commonStyles.card, { flex: 1, minWidth: 150, margin: 4 }]}>
+                <Text style={commonStyles.textSmall}>Win Rate</Text>
+                <Text style={commonStyles.text}>Loading…</Text>
+              </View>
+              <View style={[commonStyles.card, { flex: 1, minWidth: 150, margin: 4 }]}>
+                <Text style={commonStyles.textSmall}>ROI</Text>
+                <Text style={commonStyles.text}>Loading…</Text>
+              </View>
+            </View>
+          </View>
+        </ScrollView>
+      </View>
+    </SafeAreaView>
+  );
+}
+
 export default function AnalyticsScreen() {
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedLeague, setSelectedLeague] = useState<'ALL' | 'MLB' | 'NBA' | 'NFL'>('ALL');
+  const [isClient, setIsClient] = useState(false);
 
   const loadAnalytics = useCallback(async () => {
     try {
@@ -29,15 +83,28 @@ export default function AnalyticsScreen() {
   }, [selectedLeague]);
 
   useEffect(() => {
-    loadAnalytics();
-  }, [loadAnalytics]);
+    // Mark as client-side after mount for SSR compatibility
+    setIsClient(true);
+  }, []);
 
-  if (loading) {
+  useEffect(() => {
+    if (isClient) {
+      loadAnalytics();
+    }
+  }, [isClient, loadAnalytics]);
+
+  // Show skeleton for SSR/initial render
+  if (!isClient || (loading && !analytics)) {
+    return <AnalyticsSkeleton />;
+  }
+
+  if (loading && analytics) {
+    // Show loading overlay when refreshing data
     return (
       <SafeAreaView style={commonStyles.safeArea}>
         <View style={commonStyles.loadingContainer}>
           <ActivityIndicator size="large" color={colors.accent} />
-          <Text style={commonStyles.loadingText}>Loading analytics...</Text>
+          <Text style={commonStyles.loadingText}>Refreshing analytics...</Text>
         </View>
       </SafeAreaView>
     );

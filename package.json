@@ -8,6 +8,8 @@
     "ios": "EXPO_NO_TELEMETRY=1 expo start --ios",
     "web": "EXPO_NO_TELEMETRY=1 expo start --web",
     "build:web": "expo export -p web && npx workbox generateSW workbox-config.js",
+    "build:web:snap": "node scripts/build-with-prerender.js",
+    "build:web:prerender": "node scripts/build-with-prerender.js",
     "build:android": "expo prebuild -p android",
     "lint": "eslint .",
     "server": "node server.js",
@@ -58,6 +60,7 @@
     "react-native-webview": "^13.15.0",
     "react-native-worklets": "0.5.1",
     "react-router-dom": "^7.1.3",
+    "react-snap": "^1.23.0",
     "workbox-cli": "^7.3.0",
     "workbox-precaching": "^7.3.0",
     "workbox-webpack-plugin": "^7.3.0"
@@ -79,6 +82,13 @@
   },
   "resolutions": {
     "@expo/prebuild-config": "latest"
+  },
+  "reactSnap": {
+    "inlineCss": true,
+    "minifyHtml": { "collapseWhitespace": true },
+    "skipThirdPartyRequests": true,
+    "puppeteerArgs": ["--no-sandbox"],
+    "include": ["/", "/scores", "/analytics", "/tabs/analytics", "/bet/add"]
   },
   "private": true
 }

@@ -1,5 +1,9 @@
 
 User-agent: *
 Allow: /
+Allow: /analytics
+Allow: /scores
+Disallow: /__debug
+Disallow: /debug
 
 Sitemap: /sitemap.xml
