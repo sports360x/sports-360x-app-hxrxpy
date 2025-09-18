@@ -2,13 +2,17 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { commonStyles, colors } from '../styles/commonStyles';
 import Icon from '../components/Icon';
 import GameCard from '../components/GameCard';
 import LeagueFilter from '../components/LeagueFilter';
 import DateSelector from '../components/DateSelector';
+import RefreshSelector from '../components/RefreshSelector';
 import { Game, League } from '../types/sports';
 import { fetchGames } from '../utils/api';
+
+const REFRESH_INTERVAL_KEY = '@sports360x_refresh_interval';
 
 export default function ScoresScreen() {
   const [selectedLeague, setSelectedLeague] = useState<League>('ALL');
@@ -17,6 +21,34 @@ export default function ScoresScreen() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [autoRefresh, setAutoRefresh] = useState(15); // seconds
+  const [showRefreshSelector, setShowRefreshSelector] = useState(false);
+
+  // Load saved refresh interval on mount
+  useEffect(() => {
+    const loadRefreshInterval = async () => {
+      try {
+        const saved = await AsyncStorage.getItem(REFRESH_INTERVAL_KEY);
+        if (saved) {
+          setAutoRefresh(parseInt(saved, 10));
+        }
+      } catch (error) {
+        console.log('Error loading refresh interval:', error);
+      }
+    };
+    loadRefreshInterval();
+  }, []);
+
+  // Save refresh interval when changed
+  const handleRefreshIntervalChange = async (interval: number) => {
+    try {
+      setAutoRefresh(interval);
+      await AsyncStorage.setItem(REFRESH_INTERVAL_KEY, interval.toString());
+      setShowRefreshSelector(false);
+      console.log('Refresh interval saved:', interval);
+    } catch (error) {
+      console.log('Error saving refresh interval:', error);
+    }
+  };
 
   const loadGames = useCallback(async (showLoading = true) => {
     try {
@@ -69,8 +101,9 @@ export default function ScoresScreen() {
       <View style={commonStyles.container}>
         <View style={{ padding: 16 }}>
           <Text style={commonStyles.title}>Sports 360 X</Text>
+          <Text style={commonStyles.textMuted}>Live scores and real-time updates</Text>
           
-          <View style={[commonStyles.row, { marginBottom: 16 }]}>
+          <View style={[commonStyles.row, { marginTop: 16, marginBottom: 16 }]}>
             <LeagueFilter
               selectedLeague={selectedLeague}
               onLeagueChange={setSelectedLeague}
@@ -78,11 +111,11 @@ export default function ScoresScreen() {
             <View style={{ width: 12 }} />
             <TouchableOpacity
               style={[commonStyles.row, { backgroundColor: colors.card, padding: 8, borderRadius: 8 }]}
-              onPress={() => console.log('Auto-refresh settings')}
+              onPress={() => setShowRefreshSelector(true)}
             >
               <Icon name="refresh-outline" size={16} color={colors.accent} />
               <Text style={[commonStyles.textSmall, { marginLeft: 4, color: colors.accent }]}>
-                {autoRefresh}s
+                Tune Refresh ({autoRefresh}s)
               </Text>
             </TouchableOpacity>
           </View>
@@ -145,9 +178,19 @@ export default function ScoresScreen() {
               <Text style={[commonStyles.text, { marginTop: 16, textAlign: 'center' }]}>
                 No games scheduled for this date
               </Text>
+              <Text style={[commonStyles.textMuted, { marginTop: 8, textAlign: 'center' }]}>
+                Try selecting a different date or league
+              </Text>
             </View>
           )}
         </ScrollView>
+
+        <RefreshSelector
+          isVisible={showRefreshSelector}
+          currentInterval={autoRefresh}
+          onSelect={handleRefreshIntervalChange}
+          onClose={() => setShowRefreshSelector(false)}
+        />
       </View>
     </SafeAreaView>
   );

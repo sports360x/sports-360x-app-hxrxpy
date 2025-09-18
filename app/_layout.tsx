@@ -28,7 +28,7 @@ export default function RootLayout() {
               paddingTop: 8,
             },
             tabBarActiveTintColor: colors.accent,
-            tabBarInactiveTintColor: colors.muted,
+            tabBarInactiveTintColor: colors.text,
             tabBarLabelStyle: {
               fontSize: 12,
               fontWeight: '600',
@@ -45,11 +45,20 @@ export default function RootLayout() {
             }}
           />
           <Tabs.Screen
-            name="analytics"
+            name="aiinsights"
             options={{
-              title: 'Analytics',
+              title: 'AI Insights',
               tabBarIcon: ({ color, size }) => (
-                <Icon name="analytics-outline" size={size} color={color} />
+                <Icon name="bulb-outline" size={size} color={color} />
+              ),
+            }}
+          />
+          <Tabs.Screen
+            name="mybets"
+            options={{
+              title: 'My Bets',
+              tabBarIcon: ({ color, size }) => (
+                <Icon name="receipt-outline" size={size} color={color} />
               ),
             }}
           />
@@ -63,21 +72,49 @@ export default function RootLayout() {
             }}
           />
           <Tabs.Screen
+            name="settings"
+            options={{
+              title: 'Settings',
+              tabBarIcon: ({ color, size }) => (
+                <Icon name="settings-outline" size={size} color={color} />
+              ),
+            }}
+          />
+          {/* Hide other screens from tab bar */}
+          <Tabs.Screen
+            name="analytics"
+            options={{
+              href: null,
+            }}
+          />
+          <Tabs.Screen
             name="news"
             options={{
-              title: 'News',
-              tabBarIcon: ({ color, size }) => (
-                <Icon name="newspaper-outline" size={size} color={color} />
-              ),
+              href: null,
             }}
           />
           <Tabs.Screen
             name="community"
             options={{
-              title: 'Community',
-              tabBarIcon: ({ color, size }) => (
-                <Icon name="people-outline" size={size} color={color} />
-              ),
+              href: null,
+            }}
+          />
+          <Tabs.Screen
+            name="addbets"
+            options={{
+              href: null,
+            }}
+          />
+          <Tabs.Screen
+            name="debug"
+            options={{
+              href: null,
+            }}
+          />
+          <Tabs.Screen
+            name="__debug"
+            options={{
+              href: null,
             }}
           />
         </Tabs>

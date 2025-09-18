@@ -6,66 +6,30 @@ const path = require('path');
 console.log('🚀 Building Sports 360 X with prerendering...');
 
 try {
-  // Step 1: Build the Expo web app
-  console.log('📦 Building Expo web app...');
+  // Build the web version
+  console.log('📦 Building web version...');
   execSync('expo export -p web', { stdio: 'inherit' });
+
+  // Create prerendered pages
+  console.log('🔄 Creating prerendered pages...');
   
-  // Step 2: Copy static prerendered pages
-  console.log('📄 Copying prerendered pages...');
   const distDir = path.join(process.cwd(), 'dist');
   const webDir = path.join(process.cwd(), 'web');
   
+  // Copy web assets to dist
   if (fs.existsSync(webDir)) {
-    // Copy analytics.html to dist/analytics/index.html
-    const analyticsDir = path.join(distDir, 'analytics');
-    if (!fs.existsSync(analyticsDir)) {
-      fs.mkdirSync(analyticsDir, { recursive: true });
-    }
-    
-    const analyticsHtml = path.join(webDir, 'analytics.html');
-    if (fs.existsSync(analyticsHtml)) {
-      fs.copyFileSync(analyticsHtml, path.join(analyticsDir, 'index.html'));
-      console.log('✅ Copied analytics.html to /analytics/index.html');
-    }
+    const webFiles = fs.readdirSync(webDir);
+    webFiles.forEach(file => {
+      if (file.endsWith('.html')) {
+        const srcPath = path.join(webDir, file);
+        const destPath = path.join(distDir, file);
+        fs.copyFileSync(srcPath, destPath);
+        console.log(`✅ Copied ${file} to dist`);
+      }
+    });
   }
-  
-  // Step 3: Generate sitemap
-  console.log('🗺️  Generating sitemap...');
-  const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://your-domain.com/</loc>
-    <changefreq>daily</changefreq>
-    <priority>1.0</priority>
-  </url>
-  <url>
-    <loc>https://your-domain.com/analytics</loc>
-    <changefreq>daily</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://your-domain.com/scores</loc>
-    <changefreq>hourly</changefreq>
-    <priority>0.9</priority>
-  </url>
-</urlset>`;
-  
-  fs.writeFileSync(path.join(distDir, 'sitemap.xml'), sitemap);
-  console.log('✅ Generated sitemap.xml');
-  
-  // Step 4: Run workbox for service worker
-  console.log('⚙️  Generating service worker...');
-  try {
-    execSync('npx workbox generateSW workbox-config.js', { stdio: 'inherit' });
-    console.log('✅ Service worker generated');
-  } catch (error) {
-    console.log('⚠️  Service worker generation skipped (workbox-config.js not found)');
-  }
-  
-  console.log('🎉 Build completed successfully!');
-  console.log('📁 Output directory: dist/');
-  console.log('🌐 Prerendered routes: /, /analytics');
-  
+
+  console.log('✨ Build with prerendering complete!');
 } catch (error) {
   console.error('❌ Build failed:', error.message);
   process.exit(1);

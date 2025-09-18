@@ -1,16 +1,41 @@
+
 {
+  "cli": {
+    "version": ">= 3.0.0"
+  },
   "build": {
     "development": {
       "developmentClient": true,
       "distribution": "internal",
-      "autoIncrement": true
+      "ios": {
+        "resourceClass": "m1-medium"
+      }
     },
     "preview": {
       "distribution": "internal",
-      "autoIncrement": true
+      "ios": {
+        "resourceClass": "m1-medium",
+        "simulator": true
+      }
     },
     "production": {
-      "autoIncrement": true
+      "ios": {
+        "resourceClass": "m1-medium",
+        "bundleIdentifier": "com.sports360x.app"
+      },
+      "android": {
+        "buildType": "apk",
+        "gradleCommand": ":app:assembleRelease"
+      }
+    }
+  },
+  "submit": {
+    "production": {
+      "ios": {
+        "appleId": "your-apple-id@example.com",
+        "ascAppId": "your-app-store-connect-app-id",
+        "appleTeamId": "your-apple-team-id"
+      }
     }
   }
 }

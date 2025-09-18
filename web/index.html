@@ -3,186 +3,108 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#0a0e13" />
+  <meta name="description" content="Sports 360 X - AI-powered sports analytics and insights" />
   <title>Sports 360 X</title>
-  <meta name="description" content="Sports analytics and game information for MLB, NBA, and NFL" />
-  <meta name="theme-color" content="#0b0f14" />
+  <link rel="icon" href="/favicon.svg" />
+  <link rel="apple-touch-icon" href="/sports360x-icon.png" />
   <link rel="manifest" href="/manifest.json" />
-  <link rel="shortcut icon" href="/favicon.ico" />
-  <style>
-    * {
-      box-sizing: border-box;
-    }
-    html, body {
-      height: 100%;
-      margin: 0;
-      padding: 0;
-      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-      background-color: #0b0f14;
-      color: #e6edf3;
-    }
-    #root {
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-    }
-    .loading-container {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      background-color: #0b0f14;
-    }
-    .loading-content {
-      text-align: center;
-      max-width: 340px;
-      padding: 20px;
-    }
-    .loading-spinner {
-      margin: 16px auto;
-      width: 36px;
-      height: 36px;
-      border: 4px solid rgba(255, 255, 255, 0.2);
-      border-top-color: #16a34a;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-    }
-    @keyframes spin {
-      to {
-        transform: rotate(360deg);
-      }
-    }
-    .loading-title {
-      font-size: 24px;
-      font-weight: 600;
-      margin: 0 0 16px 0;
-      color: #e6edf3;
-    }
-    .loading-text {
-      font-size: 16px;
-      margin: 16px 0;
-      color: #9ca3af;
-      line-height: 1.5;
-    }
-    .debug-link {
-      color: #93c5fd;
-      text-decoration: none;
-      font-size: 14px;
-    }
-    .debug-link:hover {
-      text-decoration: underline;
-    }
-  </style>
 </head>
 <body>
+  <div id="root"></div>
+  
+  <!-- Sports 360 X Branded Noscript Fallback -->
   <noscript>
     <style>
-      body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:#0b0f14;color:#e6edf3;margin:0;display:flex;align-items:center;justify-content:center;min-height:100vh}
-      .fallback{max-width:340px;text-align:center;padding:20px}
-      .spinner{margin:16px auto;width:36px;height:36px;border:4px solid rgba(255,255,255,.2);border-top-color:#16a34a;border-radius:50%;animation:spin 1s linear infinite}
-      @keyframes spin{to{transform:rotate(360deg)}}
-      .nav-links{margin-top:20px}
-      .nav-links a{color:#93c5fd;text-decoration:none;margin:0 8px}
-      .nav-links a:hover{text-decoration:underline}
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background: #0a0e13;
+        color: #e8f0f7;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        padding: 20px;
+        box-sizing: border-box;
+      }
+      .fallback {
+        max-width: 400px;
+        text-align: center;
+        padding: 40px 20px;
+        background: #141b24;
+        border-radius: 16px;
+        border: 1px solid #334155;
+      }
+      .logo {
+        width: 80px;
+        height: 80px;
+        background: #00d4aa;
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 24px;
+        font-size: 32px;
+        font-weight: bold;
+        color: #0a0e13;
+      }
+      .spinner {
+        margin: 24px auto;
+        width: 40px;
+        height: 40px;
+        border: 4px solid rgba(232, 240, 247, 0.2);
+        border-top-color: #00d4aa;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+      h1 {
+        font-size: 28px;
+        font-weight: 800;
+        margin: 0 0 8px;
+        letter-spacing: -0.5px;
+      }
+      p {
+        font-size: 16px;
+        color: #64748b;
+        margin: 0 0 24px;
+        line-height: 1.5;
+      }
+      .links {
+        display: flex;
+        gap: 16px;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+      .links a {
+        color: #00d4aa;
+        text-decoration: none;
+        font-weight: 600;
+        padding: 8px 16px;
+        background: rgba(0, 212, 170, 0.1);
+        border-radius: 8px;
+        transition: background 0.2s;
+      }
+      .links a:hover {
+        background: rgba(0, 212, 170, 0.2);
+      }
     </style>
     <div class="fallback">
+      <div class="logo">360</div>
       <h1>Sports 360 X</h1>
       <div class="spinner"></div>
-      <p>Loading your scores and analytics…</p>
-      <div class="nav-links">
-        <a href="/analytics">Analytics</a> • 
-        <a href="/scores">Scores</a> • 
-        <a href="/__debug">Debug</a>
+      <p>Loading your scores and analytics...</p>
+      <div class="links">
+        <a href="/scores">Scores</a>
+        <a href="/insights">AI Insights</a>
+        <a href="/bets">My Bets</a>
+        <a href="/favorites">Favorites</a>
       </div>
     </div>
   </noscript>
-  
-  <div id="root">
-    <div class="loading-container" id="initial-loading">
-      <div class="loading-content">
-        <h1 class="loading-title">Sports 360 X</h1>
-        <div class="loading-spinner"></div>
-        <p class="loading-text">Loading your scores and analytics…</p>
-        
-        <!-- SEO-friendly content for crawlers -->
-        <div style="display: none;" id="seo-content">
-          <main style="font-family:system-ui; padding:16px; max-width:800px; margin:0 auto;">
-            <h1>Sports 360 X — Analytics</h1>
-            <section>
-              <h2>AI Daily Insight</h2>
-              <p>Get AI-powered predictions and top opportunities for MLB, NBA, and NFL games.</p>
-            </section>
-            <section>
-              <h2>Live Analytics</h2>
-              <ul>
-                <li>Win Rate — Track your prediction accuracy</li>
-                <li>ROI — Monitor return on investment</li>
-                <li>Hot Streak — Current winning streaks</li>
-                <li>Community — Compare with other users</li>
-              </ul>
-            </section>
-            <section>
-              <h2>Advanced Statistics</h2>
-              <p>Deep dive into advanced metrics:</p>
-              <ul>
-                <li><strong>MLB:</strong> xFIP, wOBA, Statcast data</li>
-                <li><strong>NBA:</strong> On/off splits, efficiency ratings</li>
-                <li><strong>NFL:</strong> EPA/play, QB ratings</li>
-              </ul>
-            </section>
-          </main>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    // Hide initial loading screen once React app loads
-    window.addEventListener('load', function() {
-      const initialLoading = document.getElementById('initial-loading');
-      if (initialLoading) {
-        setTimeout(() => {
-          initialLoading.style.display = 'none';
-        }, 100);
-      }
-    });
-
-    // Error handling for failed script loads
-    window.addEventListener('error', function(e) {
-      console.error('Script loading error:', e);
-      const initialLoading = document.getElementById('initial-loading');
-      if (initialLoading) {
-        const loadingText = initialLoading.querySelector('.loading-text');
-        if (loadingText) {
-          loadingText.innerHTML = 'Failed to load app. Please refresh the page or <a href="/fallback.html" class="debug-link">try the fallback version</a>.';
-        }
-      }
-    });
-
-    // Timeout fallback if app doesn't load within 10 seconds
-    setTimeout(function() {
-      const initialLoading = document.getElementById('initial-loading');
-      if (initialLoading && initialLoading.style.display !== 'none') {
-        const loadingText = initialLoading.querySelector('.loading-text');
-        if (loadingText) {
-          loadingText.innerHTML = 'App is taking longer than expected to load. <a href="javascript:window.location.reload()" class="debug-link">Refresh page</a> or <a href="/__debug" class="debug-link">open debug</a>.';
-        }
-      }
-    }, 10000);
-
-    // Register service worker for offline support
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', function() {
-        navigator.serviceWorker.register('/sw.js')
-          .then(function(registration) {
-            console.log('ServiceWorker registration successful');
-          })
-          .catch(function(error) {
-            console.log('ServiceWorker registration failed: ', error);
-          });
-      });
-    }
-  </script>
 </body>
 </html>

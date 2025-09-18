@@ -5,82 +5,22 @@ const path = require('path');
 const { fileURLToPath } = require('url');
 
 const app = express();
-const PORT = process.env.PORT || 8081;
-
-// Define __dirname for CommonJS compatibility
-const __dirname = path.dirname(require.main.filename || process.cwd());
+const PORT = process.env.PORT || 3001;
 
 // Enable CORS for all routes
-app.use(cors({
-  origin: ['https://*.exp.direct', 'http://localhost:*', 'https://localhost:*'],
-  methods: ['GET', 'POST', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true
-}));
-
+app.use(cors());
 app.use(express.json());
 
-// Mock data
-const mockTeams = [
-  {
-    id: 'bos',
-    abbr: 'BOS',
-    name: 'Celtics',
-    logo: 'https://images.unsplash.com/photo-1546519638-68e109498ffc?w=100&h=100&fit=crop',
-    league: 'NBA',
-    record: { wins: 45, losses: 12 }
-  },
-  {
-    id: 'nyk',
-    abbr: 'NYK',
-    name: 'Knicks',
-    logo: 'https://images.unsplash.com/photo-1546519638-68e109498ffc?w=100&h=100&fit=crop',
-    league: 'NBA',
-    record: { wins: 38, losses: 19 }
-  },
-  {
-    id: 'lal',
-    abbr: 'LAL',
-    name: 'Lakers',
-    logo: 'https://images.unsplash.com/photo-1546519638-68e109498ffc?w=100&h=100&fit=crop',
-    league: 'NBA',
-    record: { wins: 42, losses: 15 }
-  },
-  {
-    id: 'nyy',
-    abbr: 'NYY',
-    name: 'Yankees',
-    logo: 'https://images.unsplash.com/photo-1566577739112-5180d4bf9390?w=100&h=100&fit=crop',
-    league: 'MLB',
-    record: { wins: 82, losses: 45 }
-  },
-  {
-    id: 'bos-mlb',
-    abbr: 'BOS',
-    name: 'Red Sox',
-    logo: 'https://images.unsplash.com/photo-1566577739112-5180d4bf9390?w=100&h=100&fit=crop',
-    league: 'MLB',
-    record: { wins: 78, losses: 49 }
-  },
-  {
-    id: 'kc',
-    abbr: 'KC',
-    name: 'Chiefs',
-    logo: 'https://images.unsplash.com/photo-1577223625816-7546f13df25d?w=100&h=100&fit=crop',
-    league: 'NFL',
-    record: { wins: 12, losses: 3 }
-  }
-];
-
+// Mock data for development
 const mockGames = [
   {
     id: '1',
     league: 'NBA',
-    date: '2025-09-17',
+    date: '2025-01-17',
     state: 'LIVE',
     statusText: 'Q2 04:52',
-    homeTeam: mockTeams[0],
-    awayTeam: mockTeams[1],
+    homeTeam: { id: 'bos', abbr: 'BOS', name: 'Celtics', logo: 'https://images.unsplash.com/photo-1546519638-68e109498ffc?w=100&h=100&fit=crop' },
+    awayTeam: { id: 'nyk', abbr: 'NYK', name: 'Knicks', logo: 'https://images.unsplash.com/photo-1546519638-68e109498ffc?w=100&h=100&fit=crop' },
     homeScore: 52,
     awayScore: 48,
     periods: [
@@ -90,146 +30,145 @@ const mockGames = [
   },
   {
     id: '2',
-    league: 'NBA',
-    date: '2025-09-17',
+    league: 'NFL',
+    date: '2025-01-17',
     state: 'UPCOMING',
     statusText: '8:00 PM ET',
-    homeTeam: mockTeams[2],
-    awayTeam: mockTeams[0],
+    homeTeam: { id: 'kc', abbr: 'KC', name: 'Chiefs', logo: 'https://images.unsplash.com/photo-1546519638-68e109498ffc?w=100&h=100&fit=crop' },
+    awayTeam: { id: 'buf', abbr: 'BUF', name: 'Bills', logo: 'https://images.unsplash.com/photo-1546519638-68e109498ffc?w=100&h=100&fit=crop' },
     homeScore: 0,
     awayScore: 0,
-    periods: [],
-    startTime: '8:00 PM ET'
+    periods: []
   },
   {
     id: '3',
-    league: 'NBA',
-    date: '2025-09-17',
+    league: 'MLB',
+    date: '2025-01-17',
     state: 'FINAL',
     statusText: 'Final',
-    homeTeam: mockTeams[1],
-    awayTeam: mockTeams[2],
-    homeScore: 108,
-    awayScore: 112,
-    periods: [
-      { label: 'Q1', home: 25, away: 28 },
-      { label: 'Q2', home: 27, away: 24 },
-      { label: 'Q3', home: 28, away: 32 },
-      { label: 'Q4', home: 28, away: 28 }
-    ]
-  },
-  {
-    id: '4',
-    league: 'MLB',
-    date: '2025-09-17',
-    state: 'LIVE',
-    statusText: 'Top 7th',
-    homeTeam: mockTeams[3],
-    awayTeam: mockTeams[4],
-    homeScore: 6,
+    homeTeam: { id: 'nyy', abbr: 'NYY', name: 'Yankees', logo: 'https://images.unsplash.com/photo-1546519638-68e109498ffc?w=100&h=100&fit=crop' },
+    awayTeam: { id: 'bos', abbr: 'BOS', name: 'Red Sox', logo: 'https://images.unsplash.com/photo-1546519638-68e109498ffc?w=100&h=100&fit=crop' },
+    homeScore: 7,
     awayScore: 4,
     periods: [
       { label: '1', home: 1, away: 0 },
-      { label: '2', home: 0, away: 2 },
-      { label: '3', home: 2, away: 1 },
-      { label: '4', home: 1, away: 0 },
-      { label: '5', home: 0, away: 1 },
-      { label: '6', home: 2, away: 0 }
+      { label: '2', home: 2, away: 1 },
+      { label: '3', home: 0, away: 2 },
+      { label: '4', home: 3, away: 0 },
+      { label: '5', home: 1, away: 1 }
     ]
-  },
-  {
-    id: '5',
-    league: 'NFL',
-    date: '2025-09-17',
-    state: 'UPCOMING',
-    statusText: 'Sun 1:00 PM ET',
-    homeTeam: mockTeams[5],
-    awayTeam: mockTeams[0],
-    homeScore: 0,
-    awayScore: 0,
-    periods: [],
-    startTime: 'Sun 1:00 PM ET'
   }
 ];
 
-// API Routes
-app.get('/api/scores', (req, res) => {
-  console.log('API /scores called with:', req.query);
-  
-  const { date, league } = req.query;
-  
-  console.log(`Fetching games for date: ${date}, league: ${league}`);
-  
-  let filteredGames = mockGames;
-  
-  // Filter by date if provided
-  if (date && date !== '2025-09-17') {
-    // For demo purposes, return empty array for other dates
-    filteredGames = [];
-  }
-  
-  // Filter by league if provided and not 'ALL'
-  if (league && league !== 'ALL') {
-    filteredGames = filteredGames.filter(game => game.league === league);
-  }
-  
-  const response = {
-    games: filteredGames,
-    meta: {
-      date: date || '2025-09-17',
-      league: league || 'ALL',
-      count: filteredGames.length,
-      timestamp: new Date().toISOString()
+const mockAnalytics = {
+  insights: [
+    {
+      id: '1',
+      type: 'opportunity',
+      title: 'Celtics Strong Home Performance',
+      description: 'Boston has won 8 of their last 10 home games with an average margin of 12 points.',
+      confidence: 78,
+      league: 'NBA'
+    },
+    {
+      id: '2',
+      type: 'prediction',
+      title: 'Chiefs Offensive Surge Expected',
+      description: 'Kansas City averages 31 points per game in playoff scenarios.',
+      confidence: 85,
+      league: 'NFL'
     }
-  };
-  
-  console.log(`Returning ${filteredGames.length} games`);
-  res.json(response);
-});
+  ],
+  performance: {
+    winRate: '68%',
+    winRateTrend: 5,
+    roi: '12.4%',
+    roiTrend: 3,
+    hotStreak: 4,
+    communityRank: 127,
+    rankTrend: -8
+  }
+};
 
+// API Routes
 app.get('/api/health', (req, res) => {
-  console.log('API /health called');
-  
-  const healthData = {
+  res.json({
     status: 'healthy',
     timestamp: new Date().toISOString(),
     version: '1.0.0',
-    uptime: process.uptime(),
-    environment: process.env.NODE_ENV || 'development',
-    services: {
-      api: 'operational',
-      database: 'operational',
-      cache: 'operational'
-    },
-    checks: {
-      memory: {
-        used: Math.round(process.memoryUsage().heapUsed / 1024 / 1024),
-        total: Math.round(process.memoryUsage().heapTotal / 1024 / 1024),
-        status: 'ok'
-      },
-      cpu: {
-        load: process.cpuUsage(),
-        status: 'ok'
-      }
-    }
-  };
-  
-  console.log('Health check successful');
-  res.json(healthData);
+    uptime: process.uptime()
+  });
 });
 
-// Serve static files
-app.use(express.static(path.join(__dirname, 'dist')));
+app.get('/api/scores', (req, res) => {
+  const { league, date } = req.query;
+  let filteredGames = mockGames;
 
-// Handle React Router routes
+  if (league && league !== 'ALL') {
+    filteredGames = filteredGames.filter(game => game.league === league);
+  }
+
+  if (date) {
+    filteredGames = filteredGames.filter(game => game.date === date);
+  }
+
+  res.json({
+    games: filteredGames,
+    lastUpdated: new Date().toISOString()
+  });
+});
+
+app.get('/api/analytics', (req, res) => {
+  res.json(mockAnalytics);
+});
+
+app.get('/api/favorites/teams', (req, res) => {
+  res.json([
+    { id: 'bos', name: 'Boston Celtics', league: 'NBA', logo: 'https://images.unsplash.com/photo-1546519638-68e109498ffc?w=100&h=100&fit=crop' },
+    { id: 'kc', name: 'Kansas City Chiefs', league: 'NFL', logo: 'https://images.unsplash.com/photo-1546519638-68e109498ffc?w=100&h=100&fit=crop' }
+  ]);
+});
+
+app.get('/api/favorites/games', (req, res) => {
+  res.json(mockGames.slice(0, 2));
+});
+
+app.get('/api/news', (req, res) => {
+  res.json([
+    {
+      id: '1',
+      title: 'NBA Playoffs Heat Up',
+      summary: 'Exciting matchups continue in the NBA playoffs...',
+      url: 'https://example.com/news/1',
+      publishedAt: new Date().toISOString(),
+      league: 'NBA'
+    }
+  ]);
+});
+
+app.get('/api/community/posts', (req, res) => {
+  res.json([
+    {
+      id: '1',
+      author: 'SportsAnalyst',
+      content: 'Great insights on the Celtics game tonight!',
+      timestamp: new Date().toISOString(),
+      likes: 12
+    }
+  ]);
+});
+
+// Serve static files from web directory
+const webDir = path.join(process.cwd(), 'web');
+app.use(express.static(webDir));
+
+// Catch-all handler for SPA routing
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+  res.sendFile(path.join(webDir, 'index.html'));
 });
 
 app.listen(PORT, () => {
-  console.log(`Sports 360 X API Server running on port ${PORT}`);
-  console.log(`Health check: http://localhost:${PORT}/api/health`);
-  console.log(`Scores API: http://localhost:${PORT}/api/scores?date=2025-09-17&league=ALL`);
+  console.log(`🚀 Sports 360 X API Server running on port ${PORT}`);
+  console.log(`📊 Health check: http://localhost:${PORT}/api/health`);
+  console.log(`🏀 Scores API: http://localhost:${PORT}/api/scores`);
 });
-
-module.exports = app;

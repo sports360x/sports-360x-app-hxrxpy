@@ -2,246 +2,150 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Platform } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { commonStyles, colors } from "../styles/commonStyles";
 import { router } from "expo-router";
+import { commonStyles, colors } from "../styles/commonStyles";
 import Icon from "../components/Icon";
 
-type Ping = { ok: boolean; status: number; text: string };
+type Ping = {
+  url: string;
+  status: 'success' | 'error' | 'pending';
+  responseTime?: number;
+  error?: string;
+};
+
+const styles = StyleSheet.create({
+  debugContainer: {
+    backgroundColor: colors.card,
+    borderRadius: 8,
+    padding: 16,
+    marginVertical: 8,
+  },
+  statusDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    marginRight: 8,
+  },
+  routeButton: {
+    backgroundColor: colors.secondary,
+    padding: 12,
+    borderRadius: 8,
+    marginVertical: 4,
+  },
+});
 
 export default function WebDebugScreen() {
-  const [env, setEnv] = useState<Record<string, string | undefined>>({});
-  const [routes] = useState<string[]>([
-    "/", "/analytics", "/favorites", "/news", "/community", "/debug"
-  ]);
-  const [pings, setPings] = useState<Record<string, Ping>>({});
+  const [pings, setPings] = useState<Ping[]>([]);
 
   const targets = useMemo(() => [
-    "/api/scores?date=2025-09-17&league=ALL",
-    "/api/scores?date=2025-09-17&league=MLB",
-    "/api/health",
+    { url: '/api/health', label: 'Health Check' },
+    { url: '/api/scores', label: 'Scores API' },
+    { url: 'https://httpbin.org/status/200', label: 'External API' },
   ], []);
 
   useEffect(() => {
-    console.log("WebDebugScreen: Loading environment variables and pinging APIs");
-    
-    // Expose selected env vars (adjust to your setup)
-    setEnv({
-      NODE_ENV: process.env.NODE_ENV,
-      EXPO_PUBLIC_API_URL: process.env.EXPO_PUBLIC_API_URL,
-      APP_VARIANT: process.env.APP_VARIANT,
-      PLATFORM: Platform.OS,
-      USER_AGENT: typeof navigator !== 'undefined' ? navigator.userAgent : 'N/A',
-    });
-
-    (async () => {
-      const out: Record<string, Ping> = {};
-      for (const url of targets) {
+    const pingTargets = async () => {
+      const results: Ping[] = [];
+      
+      for (const target of targets) {
+        const startTime = Date.now();
         try {
-          console.log(`WebDebugScreen: Pinging ${url}`);
-          const res = await fetch(url, { cache: "no-store" });
-          const text = await res.text();
-          out[url] = { ok: res.ok, status: res.status, text: text.slice(0, 400) };
-          console.log(`WebDebugScreen: ${url} responded with status ${res.status}`);
-        } catch (e: any) {
-          console.log(`WebDebugScreen: Error pinging ${url}:`, e?.message || e);
-          out[url] = { ok: false, status: -1, text: String(e?.message || e) };
+          const response = await fetch(target.url);
+          const endTime = Date.now();
+          results.push({
+            url: target.url,
+            status: response.ok ? 'success' : 'error',
+            responseTime: endTime - startTime,
+          });
+        } catch (error) {
+          results.push({
+            url: target.url,
+            status: 'error',
+            error: error instanceof Error ? error.message : 'Unknown error',
+          });
         }
       }
-      setPings(out);
-    })();
+      
+      setPings(results);
+    };
+
+    pingTargets();
   }, [targets]);
 
   const handleRoutePress = (route: string) => {
-    console.log(`WebDebugScreen: Navigating to ${route}`);
-    try {
-      if (Platform.OS === 'web') {
-        window.location.href = route;
-      } else {
-        router.push(route as any);
-      }
-    } catch (error) {
-      console.log(`WebDebugScreen: Error navigating to ${route}:`, error);
-    }
+    console.log('Navigating to:', route);
+    router.push(route as any);
   };
 
   const handleBack = () => {
-    console.log("WebDebugScreen: Going back");
-    if (Platform.OS === 'web') {
-      window.history.back();
-    } else {
-      router.back();
-    }
+    router.back();
   };
 
   return (
     <SafeAreaView style={commonStyles.safeArea}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={handleBack} style={styles.backButton}>
-          <Icon name="arrow-back" size={24} color={colors.text} />
-        </TouchableOpacity>
-        <Text style={commonStyles.title}>Debug Panel</Text>
-        <View style={styles.placeholder} />
-      </View>
-
-      <ScrollView style={commonStyles.container} contentContainerStyle={styles.content}>
-        <Text style={styles.appTitle}>Sports 360 X — Debug</Text>
-        
-        <View style={styles.section}>
-          <Text style={commonStyles.subtitle}>JavaScript Status</Text>
-          <View style={commonStyles.card}>
-            <View style={styles.statusRow}>
-              <View style={[styles.statusIndicator, { backgroundColor: colors.success }]} />
-              <Text style={styles.statusText}>JavaScript is enabled and working</Text>
-            </View>
-            <Text style={commonStyles.textMuted}>
-              If you're seeing this page, JavaScript is working properly in your browser.
-            </Text>
-          </View>
+      <View style={commonStyles.container}>
+        <View style={[commonStyles.row, { padding: 16, alignItems: 'center' }]}>
+          <TouchableOpacity onPress={handleBack} style={{ marginRight: 16 }}>
+            <Icon name="arrow-back-outline" size={24} color={colors.text} />
+          </TouchableOpacity>
+          <Text style={commonStyles.title}>Web Debug Panel</Text>
         </View>
-        
-        <View style={styles.section}>
-          <Text style={commonStyles.subtitle}>Routes</Text>
-          <View style={commonStyles.card}>
-            {routes.map(route => (
-              <TouchableOpacity 
-                key={route} 
-                style={styles.routeItem}
-                onPress={() => handleRoutePress(route)}
+
+        <ScrollView style={commonStyles.content}>
+          <View style={styles.debugContainer}>
+            <Text style={commonStyles.subtitle}>Environment</Text>
+            <Text style={commonStyles.text}>Platform: {Platform.OS}</Text>
+            <Text style={commonStyles.text}>Version: {Platform.Version}</Text>
+            <Text style={commonStyles.text}>Debug: {__DEV__ ? 'Yes' : 'No'}</Text>
+          </View>
+
+          <View style={styles.debugContainer}>
+            <Text style={commonStyles.subtitle}>API Health</Text>
+            {pings.map((ping, index) => (
+              <View key={index} style={[commonStyles.row, { marginVertical: 4 }]}>
+                <View
+                  style={[
+                    styles.statusDot,
+                    {
+                      backgroundColor:
+                        ping.status === 'success'
+                          ? colors.success
+                          : ping.status === 'error'
+                          ? colors.error
+                          : colors.warning,
+                    },
+                  ]}
+                />
+                <Text style={commonStyles.text}>{ping.url}</Text>
+                {ping.responseTime && (
+                  <Text style={[commonStyles.textSmall, { marginLeft: 8 }]}>
+                    ({ping.responseTime}ms)
+                  </Text>
+                )}
+              </View>
+            ))}
+          </View>
+
+          <View style={styles.debugContainer}>
+            <Text style={commonStyles.subtitle}>Navigation</Text>
+            {[
+              { route: '/', label: 'Scores' },
+              { route: '/aiinsights', label: 'AI Insights' },
+              { route: '/mybets', label: 'My Bets' },
+              { route: '/favorites', label: 'Favorites' },
+              { route: '/settings', label: 'Settings' },
+            ].map((item, index) => (
+              <TouchableOpacity
+                key={index}
+                style={styles.routeButton}
+                onPress={() => handleRoutePress(item.route)}
               >
-                <Text style={styles.routeText}>{route}</Text>
-                <Icon name="chevron-forward" size={16} color={colors.muted} />
+                <Text style={commonStyles.text}>{item.label}</Text>
               </TouchableOpacity>
             ))}
           </View>
-        </View>
-
-        <View style={styles.section}>
-          <Text style={commonStyles.subtitle}>Environment</Text>
-          <View style={[commonStyles.card, styles.codeContainer]}>
-            <Text style={styles.codeText}>
-              {JSON.stringify(env, null, 2)}
-            </Text>
-          </View>
-        </View>
-
-        <View style={styles.section}>
-          <Text style={commonStyles.subtitle}>API Pings</Text>
-          {Object.entries(pings).length === 0 ? (
-            <View style={commonStyles.card}>
-              <Text style={commonStyles.textMuted}>Loading API status...</Text>
-            </View>
-          ) : (
-            Object.entries(pings).map(([url, ping]) => (
-              <View key={url} style={[commonStyles.card, styles.pingCard]}>
-                <Text style={styles.pingUrl}>{url}</Text>
-                <View style={styles.pingStatus}>
-                  <View style={styles.statusRow}>
-                    <Text style={commonStyles.textMuted}>Status: {ping.status}</Text>
-                    <View style={[styles.statusIndicator, { backgroundColor: ping.ok ? colors.success : colors.error }]} />
-                    <Text style={commonStyles.textMuted}>OK: {String(ping.ok)}</Text>
-                  </View>
-                </View>
-                <View style={[styles.codeContainer, styles.responseContainer]}>
-                  <Text style={styles.codeText} numberOfLines={10}>
-                    {ping.text}
-                  </Text>
-                </View>
-              </View>
-            ))
-          )}
-        </View>
-      </ScrollView>
+        </ScrollView>
+      </View>
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-  },
-  backButton: {
-    padding: 8,
-  },
-  placeholder: {
-    width: 40,
-  },
-  content: {
-    padding: 16,
-  },
-  appTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: colors.text,
-    textAlign: 'center',
-    marginBottom: 24,
-  },
-  section: {
-    marginVertical: 16,
-  },
-  routeItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 12,
-    paddingHorizontal: 4,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-  },
-  routeText: {
-    fontSize: 16,
-    color: colors.accent,
-    fontWeight: '500',
-  },
-  codeContainer: {
-    backgroundColor: colors.background,
-    borderRadius: 8,
-    padding: 12,
-  },
-  codeText: {
-    fontFamily: Platform.select({
-      ios: 'Courier',
-      android: 'monospace',
-      default: 'monospace',
-    }),
-    fontSize: 12,
-    color: colors.text,
-    lineHeight: 16,
-  },
-  pingCard: {
-    marginVertical: 6,
-  },
-  pingUrl: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: colors.text,
-    marginBottom: 8,
-  },
-  pingStatus: {
-    marginBottom: 8,
-  },
-  statusRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  statusIndicator: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-  },
-  statusText: {
-    fontSize: 14,
-    color: colors.text,
-    fontWeight: '500',
-  },
-  responseContainer: {
-    backgroundColor: colors.secondary,
-    maxHeight: 200,
-  },
-});
