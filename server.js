@@ -2,9 +2,13 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const { fileURLToPath } = require('url');
 
 const app = express();
 const PORT = process.env.PORT || 8081;
+
+// Define __dirname for CommonJS compatibility
+const __dirname = path.dirname(require.main.filename || process.cwd());
 
 // Enable CORS for all routes
 app.use(cors({

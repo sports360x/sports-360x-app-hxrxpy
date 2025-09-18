@@ -47,7 +47,7 @@ export default function DebugScreen() {
       }
       setPings(out);
     })();
-  }, []);
+  }, [targets]);
 
   const handleRoutePress = (route: string) => {
     console.log(`DebugScreen: Navigating to ${route}`);

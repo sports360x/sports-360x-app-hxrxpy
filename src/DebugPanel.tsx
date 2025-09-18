@@ -45,7 +45,7 @@ export default function DebugPanel() {
       }
       setPings(out);
     })();
-  }, []);
+  }, [targets]);
 
   return (
     <SafeAreaView style={commonStyles.safeArea}>

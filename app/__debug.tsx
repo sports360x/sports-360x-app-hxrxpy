@@ -49,7 +49,7 @@ export default function WebDebugScreen() {
       }
       setPings(out);
     })();
-  }, []);
+  }, [targets]);
 
   const handleRoutePress = (route: string) => {
     console.log(`WebDebugScreen: Navigating to ${route}`);
