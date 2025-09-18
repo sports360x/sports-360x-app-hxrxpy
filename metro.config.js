@@ -9,4 +9,7 @@ config.cacheStores = [
     new FileStore({ root: path.join(__dirname, 'node_modules', '.cache', 'metro') }),
   ];
 
+// Ensure web assets are properly resolved
+config.resolver.platforms = ['ios', 'android', 'native', 'web'];
+
 module.exports = config;

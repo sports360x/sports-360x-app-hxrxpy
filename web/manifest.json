@@ -1,0 +1,18 @@
+
+{
+  "name": "Sports 360 X",
+  "short_name": "Sports 360 X",
+  "description": "Sports analytics and game information for MLB, NBA, and NFL",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#0b0f14",
+  "background_color": "#0b0f14",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    }
+  ]
+}
