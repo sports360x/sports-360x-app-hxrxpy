@@ -8,6 +8,7 @@ import StatsCard from '../components/StatsCard';
 import InsightCard from '../components/InsightCard';
 import { AnalyticsData } from '../types/analytics';
 import { fetchAnalytics } from '../utils/api';
+import { router } from 'expo-router';
 
 export default function AnalyticsScreen() {
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
@@ -45,9 +46,17 @@ export default function AnalyticsScreen() {
   return (
     <SafeAreaView style={commonStyles.safeArea}>
       <View style={commonStyles.container}>
-        <View style={{ padding: 16 }}>
-          <Text style={commonStyles.title}>Analytics</Text>
-          <Text style={commonStyles.textMuted}>AI-powered insights and statistics</Text>
+        <View style={{ padding: 16, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+          <View>
+            <Text style={commonStyles.title}>Analytics</Text>
+            <Text style={commonStyles.textMuted}>AI-powered insights and statistics</Text>
+          </View>
+          <TouchableOpacity 
+            onPress={() => router.push('/debug')}
+            style={{ padding: 8 }}
+          >
+            <Icon name="bug-outline" size={24} color={colors.muted} />
+          </TouchableOpacity>
         </View>
 
         <ScrollView style={commonStyles.content}>
